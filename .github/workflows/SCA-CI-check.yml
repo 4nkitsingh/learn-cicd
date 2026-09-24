@@ -39,8 +39,9 @@ jobs:
     - name: Run Security Audit
       run: npm audit --audit-level=high
 
+# Adding SAST
   semgrep:
-    name: Semgrep SAST Code Scan
+    name: Semgrep SAST Code Scan 
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
