@@ -52,4 +52,4 @@ jobs:
         config: >-
           p/nodejs
           p/expressjs
-          p/owasp-top-ten
+          p/owasp-top-ten  
