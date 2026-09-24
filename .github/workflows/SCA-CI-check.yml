@@ -38,3 +38,18 @@ jobs:
 
     - name: Run Security Audit
       run: npm audit --audit-level=high
+
+  semgrep:
+    name: Semgrep SAST Code Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run Semgrep
+      uses: semgrep/action@v1
+      with:
+        config: >-
+          p/nodejs
+          p/expressjs
+          p/owasp-top-ten  
