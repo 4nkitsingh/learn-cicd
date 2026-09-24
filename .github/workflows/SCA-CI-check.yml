@@ -1,4 +1,4 @@
-name: Node.js SCA Cehck on : CI
+name: Node.js SCA Check on CI
 
 on:
   push:
@@ -26,9 +26,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    # - run: npm ci
-    # - run: npm run build --if-present
-    # - run: npm test
     
     # Step 3: Installs dependencies based exactly on package-lock.json
     - name: Install Dependencies
