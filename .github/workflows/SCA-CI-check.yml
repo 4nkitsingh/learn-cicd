@@ -20,10 +20,10 @@ jobs:
         node-version: [24.x]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -40,16 +40,34 @@ jobs:
       run: npm audit --audit-level=high
 
 # Adding SAST - Semgrep
+# Instead of fighting with outdated action wrappers, the cleanest and most professional DevSecOps solution is to install the latest Semgrep CLI directly onto the runner and execute it yourself.
   semgrep:
-    name: Semgrep SAST Code Scan 
+    name: Semgrep SAST Code Scan - 2nd job
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Run Semgrep
-      uses: returntocorp/semgrep-action@v1
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+    # Installs the absolute latest version of the Semgrep engine securely
+    - name: Install latest Semgrep
+      run: pipx install semgrep
+
+    # Runs the scan and forces an exit code 1 (--error) if vulnerabilities are found
+    - name: Run Semgrep CLI
+      run: semgrep scan --config "p/nodejs" --config "p/expressjs" --config "p/owasp-top-ten" --error
+
+  gitleak:
+    name: Running gitLeaks in our 3rd Job
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
-        config: >-
-          p/nodejs
-          p/expressjs
-          p/owasp-top-ten  
+        # CRITICAL: Gitleaks needs the full commit history to find secrets buried in older commits. 
+        # By default, GitHub only fetches the single latest commit (depth 1).
+        fetch-depth: 0
+    - name: Running our Gitleaks
+      uses: zricethezav/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
