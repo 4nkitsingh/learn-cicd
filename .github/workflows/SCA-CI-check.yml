@@ -81,7 +81,7 @@ jobs:
         fetch-depth: 0
 
     - name: Run TruffleHog
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@88524578ce32e1a8521c29dd38af9d9200ff92cc
       with:
         path: ./
         base: ${{ github.event.repository.default_branch }}
