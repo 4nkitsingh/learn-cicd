@@ -70,4 +70,22 @@ jobs:
       uses: zricethezav/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trufflehog:
+    name: TruffleHog Secret Scanner - 4th Job
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        fetch-depth: 0
+
+    - name: Run TruffleHog
+      uses: trufflesecurity/trufflehog@88524578ce32e1a8521c29dd38af9d9200ff92cc
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+        # The --only-verified flag tells it to only fail the PR if the secret actually works
+        extra_args: --only-verified
       
