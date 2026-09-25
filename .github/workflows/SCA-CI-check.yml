@@ -7,6 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
+  #Running our 1st Job ==> Build + npm audit + Semgrep for SAST
   build:
     runs-on: ubuntu-latest
 
@@ -39,38 +40,7 @@ jobs:
     - name: Run Security Audit
       run: npm audit --audit-level=high
 
-# Adding SAST - Semgrep
-# Instead of fighting with outdated action wrappers, the cleanest and most professional DevSecOps solution is to install the latest Semgrep CLI directly onto the runner and execute it yourself.
-  semgrep:
-    name: Semgrep SAST Code Scan - 2nd job
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-
-    # Installs the absolute latest version of the Semgrep engine securely
-    - name: Install latest Semgrep
-      run: pipx install semgrep
-
-    # Runs the scan and forces an exit code 1 (--error) if vulnerabilities are found
-    - name: Run Semgrep CLI
-      run: semgrep scan --config "p/nodejs" --config "p/expressjs" --config "p/owasp-top-ten" --error
-
-  gitleak:
-    name: Running gitLeaks in our 3rd Job
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        # CRITICAL: Gitleaks needs the full commit history to find secrets buried in older commits. 
-        # By default, GitHub only fetches the single latest commit (depth 1).
-        fetch-depth: 0
-    - name: Running our Gitleaks
-      uses: zricethezav/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+  #Running our 2nd Job - TruffleHog for commit/secrets scan
   trufflehog:
     name: TruffleHog Secret Scanner - 4th Job
     runs-on: ubuntu-latest
@@ -88,4 +58,38 @@ jobs:
         head: HEAD
         # The --only-verified flag tells it to only fail the PR if the secret actually works
         extra_args: --only-verified
-      
+  
+  #Running our 3rd Job - gitLeaks for commit/secrets scan  
+  gitleak:
+    name: Running gitLeaks in our 3rd Job
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        # CRITICAL: Gitleaks needs the full commit history to find secrets buried in older commits. 
+        # By default, GitHub only fetches the single latest commit (depth 1).
+        fetch-depth: 0
+    - name: Running our Gitleaks
+      uses: zricethezav/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+
+# Adding SAST - Semgrep
+# Instead of fighting with outdated action wrappers, the cleanest and most professional DevSecOps solution is to install the latest Semgrep CLI directly onto the runner and execute it yourself.
+  #Our 4th Job ==> SAST with Semgrep
+  semgrep:
+    name: Semgrep SAST Code Scan - 2nd job
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+    # Installs the absolute latest version of the Semgrep engine securely
+    - name: Install latest Semgrep
+      run: pipx install semgrep
+
+    # Runs the scan and forces an exit code 1 (--error) if vulnerabilities are found
+    - name: Run Semgrep CLI
+      run: semgrep scan --config "p/nodejs" --config "p/expressjs" --config "p/owasp-top-ten" --error
